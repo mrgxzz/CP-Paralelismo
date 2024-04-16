@@ -2,7 +2,7 @@
 #include <math.h>
 #include <mpi.h>
 
-// Definición de MPI_FlattreeColectiva para la recolección de sum
+// Definición de MPI_FlattreeColectiva para la recolección de sum.
 void MPI_FlattreeColectiva(double *mypi, double *pi, int numprocs, int myid) {
     MPI_Status status;
     int mask = 1;
