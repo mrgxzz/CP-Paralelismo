@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <math.h>
 #include <mpi.h>
@@ -7,7 +6,7 @@ void MPI_FlattreeColectiva(void * buff, void * recvbuff, int count, MPI_Datatype
 void MPI_BinomialColectiva(void* buff, int count, MPI_Datatype datatype, int root, MPI_Comm comm);
 
 int main(int argc, char *argv[]){
-    int i, done = 0, n;
+    int i, finished = 0, num_intervals;
     double PI25DT = 3.141592653589793238462643;
     double pi, h, sum, x;
 
@@ -16,25 +15,25 @@ int main(int argc, char *argv[]){
     MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-    while (!done) {
+    while (finished == 0) {
         if (rank == 0) {
             printf("Enter the number of intervals: (0 quits) \n");
-            scanf("%d", &n);
+            scanf("%d", &num_intervals);
         }
-        MPI_BinomialColectiva(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        if (n == 0) break;
+        MPI_BinomialColectiva(&num_intervals, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        if (num_intervals == 0) break;
 
-        h = 1.0 / (double) n;
+        h = 1.0 / (double) num_intervals;
         sum = 0.0;
-        for (i = rank + 1; i <= n; i += numprocs) {
+        for (i = rank + 1; i <= num_intervals; i += numprocs) {
             x = h * ((double) i - 0.5);
             sum += 4.0 / (1.0 + x * x);
         }
-        double resultado;
-        MPI_FlattreeColectiva(&sum, &resultado, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        double result;
+        MPI_FlattreeColectiva(&sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         if (rank == 0) {
-            pi = h * resultado;
-            printf("pi is approximately %.16f, Error is %.16f\n", pi, fabs(pi - PI25DT));
+            pi = h * result;
+            printf("Approximation of pi is %.16f, Error is %.16f\n", pi, fabs(pi - PI25DT));
         }
     }
     MPI_Finalize();
